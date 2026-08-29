@@ -1,0 +1,277 @@
+
+close all
+clear all
+clc
+
+% Parametri geometrici 
+a = 0.1; %m
+c = 0.15; %m
+b = 0.05; %m
+R1 = 0.015; %m
+R2 = 0.0075; %m
+alpha = 20; %°
+betha = 20; %°
+
+Pow = 500; %W
+n = 100; %rpm
+
+%% Forze esterne
+
+w = 2*pi*n/60; %rad/s
+Torque = Pow/w; %Nm
+
+% Assumiamo che alla ruota 1 sia collegata una ruota motrice.
+% Calcoliamo di conseguenza la forza tangenziale esercitata come
+% conseguenza dalla ruota 1 (modulo)
+F_T1 = Torque/R1; %N
+
+% -- Sintassi F(:, 1): F sarà una matrice in cui andranno tutte le forze, e
+% -- P la matrice dei rispettivi punti di applicazione. F(:, 1) assegna
+% -- alla prima colonna di questa matrice il vettore della prima forza, e
+% -- P(:, 1) alla prima colonna della matrice P il rispettivo punto di
+% -- applicazione.
+% -- La sintassi F(:,1) = ... significa "assegna tutte le righe della prima
+% colonna a ..."
+
+% tale forza tangenziale motrice, nello spazio, agisce solo in direzione
+% "y". Chiamamo allora la forza tangenziale 1 F
+F(:,1) = [0,-F_T1,0]';
+% P sarebbe il vettore posizione del punto di applicazione della forza
+% tangenziale, considerando il centro del cuscinetto A come riferimento
+P(:,1) = [a,0,R1]';
+
+% Creiamo ora la forza normale sempre sulla ruota motrice. La prima
+% assegnazione rappresenta una approssimazione, la seconda è piu accurata.
+% Dopodiche assegniamo tale vettore alla matrice di forze
+
+% F_N1 = F_T1*tand(alpha) ; %N
+F_N1 = F_T1*tand(alpha)/cosd(betha);
+F(:,2) = [0,0,-F_N1]';
+P(:,2) = [a,0,R1]';
+
+% A1 sarebbe la componente assiale della forza tra i denti, presente in
+% quanto stiamo usando ruote elicoidali
+F_A1 = F_T1*tand(betha); %N
+F(:,3) = [-F_A1,0,0]';
+P(:,3) = [a,0,R1]';
+
+
+% come da slides, le due forze tangenziali causano un momento torcente
+% sull'albero. Questo ci permette, per equilibrio, di trovare quanto vale
+% la f tangenziale sulla seconda ruota (ruota ""condotta"")
+% Aggiungiamo poi tale forza alle matrici delle forze
+
+% Componente tangenziale, normale e assiale della forza tra i denti
+F_T2 = F_T1*R1/R2; %N
+F(:,4) = [0,F_T2,0]';
+P(:,4) = [a+c,0,R2]';
+
+F_N2 = F_T2*tand(alpha)/cosd(betha);
+F(:,5) = [0,0,-F_N2]';
+P(:,5) = [a+c,0,R2]';
+
+F_A2 = F_T2*tand(betha); %N
+F(:,6) = [F_A2,0,0]';
+P(:,6) = [a+c,0,R2]';
+
+
+
+% Tramite equilibrio calcoliamo poi tutte le reazioni vincolari. Supponiamo
+% che il primo cuscinetto funga da bloccaggio e quindi assorba tute le
+% forze assiali
+
+% Definiamo allora una matrice per le reazioni vincolari e inializziamo le
+% varie reazioni vincolari a versori unitari
+
+%contraint in A
+R(:,1) = [1,0,0]'; % generic constrain in x direction
+Pr(:,1) = [0,0,0]'; 
+
+R(:,2) = [0,1,0]'; % generic constrain in y direction
+Pr(:,2) = [0,0,0]'; 
+
+R(:,3) = [0,0,1]'; % generic constrain in z direction
+Pr(:,3) = [0,0,0]'; 
+
+%contraint in B
+R(:,4) = [0,1,0]'; % generic constrain in y direction
+Pr(:,4) = [a+b+c,0,0]'; 
+
+R(:,5) = [0,0,1]'; % generic constrain in z direction
+Pr(:,5) = [a+b+c,0,0]'; 
+
+
+% Equilibrio
+
+% n -> numero di forze esterne (6 forze in totale, la tangenziale, normale
+% e assiale) e anche relativo numero di punti di applicazione (due univoci
+% ma comunque sei elementi in totale)
+
+% Viene formulato M, vettore dei momenti prodotti da ogni forza esterna
+[m,n] = size(F);
+for i = 1:n
+    M(:,i) = cross(P(:,i),F(:,i));
+end
+
+% Forze e momento totale prodotto dalle forze esterne
+F_tot = [0,0,0]';
+M_tot = [0,0,0]';
+
+% Naturalmente queste sono la somma di tutte le forze e momenti esterni
+for i = 1:n
+    F_tot = F_tot + F(1:3,i);
+    M_tot = M_tot + M(1:3,i);
+end
+
+% Vettore colonna 6x1, con i primi tre elementi componenti della forza
+% totale e gli ultimi 3 del momento totale
+W_tot = [F_tot;M_tot];
+
+% Mr matrice dei momenti prodotti dalle reazioni vincolari (r)
+[m,n] = size(R);
+for i = 1:n
+    Mr(:,i) = cross(Pr(:,i),R(:,i));
+end
+
+% Matrice 6x5: le prime tra righe contengono le componenti delle 5 reazioni
+% R (5 vettori colonna), le ultime tre righe i corrispettivo momenti che
+% ciascuno di questi vettori genera
+A = [R(1:3,:);Mr];
+
+
+% Essenzialmente questo ci serve perchè trovare le reazioni vincolari
+% significa risolvere il sistema A * Norm_r + W_tot = 0, dove Norm_r è il
+% vettore delle 5 incognite (dei moduli delle 5 reaz vincolari) e deve far si che
+% moltiplicato per le reazioni vincolari unitarie vada a bilanciare
+% perfettamente le forze esterne.
+% Risolverlo significa riscrivere l'equazione come Norm_r = -A'*W_tot
+% (invertendo A), ma A non è quadrata e quindi non è invertibile. 
+% Questo perchè le reazioni vincolari non producono un momento torcente (i
+% cuscinetti non producono momento torcente). Si possono allora approcciare
+% due tecniche, o aggiungere una colonna ad A (come ad indicare la presenza
+% di un momento torcente delle reaz, il cui modulo sarà comunque 0 alla
+% fine perchè per eq le forze esterno non producono mom torcente) oppure
+% andare direttamente a rimuovere da A la quarta riga -> A diventa 5x5 (e
+% stessa cosa da W_tot)
+
+%  Metodo 1
+A_square = [A,[0,0,0,1,0,0]'];
+Norm_r_square = -inv(A_square)*W_tot
+% Metodo 2 (utilizzato)
+A_reduced = A;
+A_reduced(4,:)=[];
+W_tot_reduced = W_tot;
+W_tot_reduced(4)=[];
+Norm_r_reduced = -inv(A_reduced)*W_tot_reduced
+
+% Modulo delle reazioni vincolari, trovati tramite equilibrio
+Norm_r = Norm_r_reduced;
+
+% Aggiorniamo la matrice della reazione vincolare con i moduli trovati
+R = R*diag(Norm_r);
+
+%% CALCOLO AZIONI INTERNE
+
+% Matrice con tutte le azioni non interne (vere forze esterne + reaz.
+% vincolari).
+% Struttura:
+% 11 colonne (ognuna con una forza e il rispettivo punto di applicazione (le prime 6 sono le forze esterne
+% (tangenziali, normali, assiali) e le ultime 5 le reaz. vinc.)). Quindi ha
+% una dimensione 6x11
+tmp_Actions = [F, R; P, Pr]; 
+
+% ordina le forze esterne in base alla vicinanza all'origine (in base alla
+% distanza x (quarta riga) dall'origine). La riga 4 contiene infatti le x
+% di ogni punto di applicazione. 
+% li mettiamo sulle righe invece che sulle colonne solo per poter
+% utilizzare sortrows (non esiste un sortcolumns).
+Actions = sortrows(tmp_Actions',4)'; % <- Nota che poi la ri-trasponiamo, quindi rimane una 6x11
+
+% m = 6, n = 11 (n numero di forze)
+[m,n] = size(Actions);
+
+
+%% Algoritmo per il calcolo delle azioni interne
+j=1;
+i=1;
+while i<=n
+
+    % Se abbiamo piu forze applicate nello stesso punto allora spostiamo
+    % l'indice i appena dopo tali forze (es se ho 2 forze in x = 0, allora
+    % imposto i a 2). In questo modo includiamo tutte le forze in tale
+    % punto
+    while (i <= n-1  && Actions(4,i+1) == Actions(4,i))
+        i = i+1;
+    end
+
+    % Registriamo la cordinata x nel vettore s, che servirà poi per i plot
+    % (es inizialmente magari x = 0)
+    S(j)=Actions(4,i);%ascissa
+
+    % Setup delle matrici che conterranno le forze e i momenti agenti nel
+    % segmento considerato
+    W_F(1:3,j) = [0,0,0]'; % resultant internal action
+    W_M(1:3,j) = [0,0,0]'; % resultant internal torque
+
+    % Somma tutte le forze applicate dall'inizio dell'albero alla x
+    % considerata (es al primo ciclo tutte le forze a x = 0) e calcola le
+    % corrispettive forze e momenti interni da esercitare per equilibrare
+    for k = 1:i
+        W_F(1:3,j) = W_F(1:3,j) - Actions(1:3,k);
+        W_M(1:3,j) = W_M(1:3,j) - cross(Actions(4:6,k)-[S(j);0;0],Actions(1:3,k));
+    end
+    
+    % Il blocco sopra ha calcolato lo sforzo appena dopo la x considerata.
+    % Nonostante il taglio rimanga costante fino alla prossima x
+    % considerata, il momento flettente varia linearmente. Per questo ci
+    % posizioniamo alla x successiva (S(J) = Actions(4, i+1)) e 
+    if i<n
+        j = j+1;
+        S(j)=Actions(4,i+1);%ascissa
+        W_F(1:3,j) = [0,0,0]'; % resultant internal actions
+        W_M(1:3,j) = [0,0,0]'; % resultant internal torque
+
+        for k = 1:i
+            W_F(1:3,j) = W_F(1:3,j) - Actions(1:3,k);
+            W_M(1:3,j) = W_M(1:3,j) - cross(Actions(4:6,k)-[S(j);0;0],Actions(1:3,k));
+        end        
+    end
+
+    i = i+1;
+    j = j+1;
+end
+
+% plot the internal actions
+subplot(4,1,1)
+plot(S,W_F(1,:))
+grid on
+ylabel('N')
+xlabel('m')
+legend('N')
+
+subplot(4,1,2)
+plot(S,W_F(2,:))
+hold all
+plot(S,W_F(3,:))
+grid on
+ylabel('N')
+xlabel('m')
+legend('T_y','T_z')
+
+subplot(4,1,3)
+plot(S,W_M(2,:))
+hold all
+plot(S,W_M(3,:))
+grid on
+ylabel('Nm')
+xlabel('m')
+legend('M_y','M_z')
+
+subplot(4,1,4)
+plot(S,W_M(1,:))
+
+grid on
+ylabel('Nm')
+xlabel('m')
+legend('M_t')
+
