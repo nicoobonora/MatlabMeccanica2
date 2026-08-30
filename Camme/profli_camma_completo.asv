@@ -13,12 +13,15 @@ clc
 % - 45 gradi -> Mantiene di H3 (Fino a 
 % - 180 gradi -> rialza fino a H4
 
-% Struttura tratti: matrice 2xn con ogni colonna avente beta gradi e
-% corrispettiva H, n = numero di tratti
+% Struttura tratti: matrice 3xn con ogni colonna avente beta gradi,
+% corrispettiva H e funzione scelta.
 
-Tratti = [90, 45, 45, 180; ...
-            10, -5, 0, -5];
+Tratti = [ 90, 45, 45, 180; ...
+            10, -5, 0, -5 ];
 
+Functions = ["ci", "poli", "para", "ci"];
+
+% n = numero di tratti
 [m, n] = size(Tratti);
 step = 0.1;
 
@@ -28,53 +31,54 @@ Theta = [];
 Y = [];
 
 for i=1:n
-    betha_i = Tratti(1, i)
+    betha_i = Tratti(1, i);
     theta_i = 0:step:Tratti(1, i);
-    [k, n_i] = size(theta_i)
+    [k, n_i] = size(theta_i);
     h_i = Tratti(2, i);
+    choice_i = Functions(i);
 
     y_i = zeros(1, n_i);
-
+    translated_theta_i = zeros(1, n_i);
+    
+    
     for j=1:n_i
-        y_i(j) = h_tot + h_i * ((theta_i(j)/betha_i) - (1/(2*pi))*sin(2*pi*theta_i(j)/betha_i));
+        y_i(j) = h_tot + select_function(choice_i, h_i, theta_i(j), betha_i);
+        translated_theta_i(j) = theta_i(j) + starting_point;
     end
 
-    theta_i
-    y_i
-
-    Theta = [Theta, theta_i];
+    Theta = [Theta, translated_theta_i];
     Y = [Y, y_i];
 
     h_tot = h_tot + h_i;
+
+    starting_point = starting_point + betha_i;
 end
 
-n_i
-size(Theta)
-size(Y)
-
-% grafichiamo lo spostamento della punteria
+% Grafichiamo lo spostamento della punteria
 figure
 plot(Theta, Y)
 grid on
 
+c = 0;
 for i=1:n
-    size = Tratti(1, i)
-    line([Theta(1, i),theta1(n1)],[min(Y),max(Y)],'Color','k')
+    amp = Tratti(1, i);
+    line([amp, amp],[min(Y),max(Y)],'Color','k');
+    c = c + amp;
 end
-line([theta1(n1),theta1(n1)],[min(Y),max(Y)],'Color','k')
-line([theta2(n2),theta2(n2)],[min(Y),max(Y)],'Color','k')
-line([theta3(n3),theta3(n3)],[min(Y),max(Y)],'Color','k')
-line([theta4(n4),theta4(n4)],[min(Y),max(Y)],'Color','k')
 
 xlabel('angular position')
 ylabel('displacement')
+
+
+% -------- Parte non modificata ---------
+
 
 % Disegnamo il profilo della camma
 % Camma centrata
 R_base = 10;
 R_rotella = 8; 
 
-[m,n] = size(Theta)
+[m,n] = size(Theta);
 
 for i = 1:n
     P_primitivo(i,1) = (R_base+R_rotella+Y(i))*sind(Theta(i));
@@ -132,3 +136,23 @@ viscircles([0,0], R_base,'Color','black','LineWidth',.5);
 xlim([1.2*Min 1.2*Max])
 ylim([1.2*Min 1.2*Max])
 legend('profilo primitivo','profilo reale','centro di rotazione','circonferenza primitiva')
+
+
+% -------- FIne parte non modificata ---------
+
+Theta
+
+%% Calcolo angolo di spinta punteria centrata
+c = 1;
+[m,n] = size(Tratti);
+starting_point = 0;
+for i=1:n
+    
+    betha_i = Tratti(1, i)
+
+    for j=c:c+Tratti(1, i)
+        index = 
+        tan_alpha_cen(j) = select_derivative_function(Functions(i), Tratti(2, i), Theta(j), Tratti(1, i))/(R_base+R_rotella+Y(j))
+    end
+    c = c + Tratti(1, i)
+end

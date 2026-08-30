@@ -13,12 +13,15 @@ clc
 % - 45 gradi -> Mantiene di H3 (Fino a 
 % - 180 gradi -> rialza fino a H4
 
-% Struttura tratti: matrice 2xn con ogni colonna avente beta gradi e
-% corrispettiva H, n = numero di tratti
+% Struttura tratti: matrice 3xn con ogni colonna avente beta gradi,
+% corrispettiva H e funzione scelta.
 
-Tratti = [90, 45, 45, 180; ...
-            10, -5, 0, -5];
+Tratti = [ 90, 45, 45, 180; ...
+            10, -5, 0, -5 ];
 
+Functions = ["ci", "poli", "para", "ci"];
+
+% n = numero di tratti
 [m, n] = size(Tratti);
 step = 0.1;
 
@@ -32,13 +35,14 @@ for i=1:n
     theta_i = 0:step:Tratti(1, i);
     [k, n_i] = size(theta_i);
     h_i = Tratti(2, i);
+    choice_i = Functions(i);
 
     y_i = zeros(1, n_i);
     translated_theta_i = zeros(1, n_i);
     
     
     for j=1:n_i
-        y_i(j) = h_tot + h_i * ((theta_i(j)/betha_i) - (1/(2*pi))*sin(2*pi*theta_i(j)/betha_i));
+        y_i(j) = h_tot + select_function(choice_i, h_i, theta_i(j), betha_i);
         translated_theta_i(j) = theta_i(j) + starting_point;
     end
 
@@ -50,20 +54,24 @@ for i=1:n
     starting_point = starting_point + betha_i;
 end
 
-% grafichiamo lo spostamento della punteria
+% Grafichiamo lo spostamento della punteria
 figure
 plot(Theta, Y)
 grid on
 
 c = 0;
 for i=1:n
-    amp = Tratti(1, i)
+    amp = Tratti(1, i);
     line([amp, amp],[min(Y),max(Y)],'Color','k');
     c = c + amp;
 end
 
 xlabel('angular position')
 ylabel('displacement')
+
+
+% -------- Parte non modificata ---------
+
 
 % Disegnamo il profilo della camma
 % Camma centrata
@@ -128,3 +136,48 @@ viscircles([0,0], R_base,'Color','black','LineWidth',.5);
 xlim([1.2*Min 1.2*Max])
 ylim([1.2*Min 1.2*Max])
 legend('profilo primitivo','profilo reale','centro di rotazione','circonferenza primitiva')
+
+
+% -------- FIne parte non modificata ---------
+
+
+%% Calcolo angolo di spinta punteria centrata
+
+c = 1; % <- usato per prendere elementi di Theta e Y
+[m,n] = size(Tratti);
+starting_point = 0; % <- per tener conto dell'angolo assoluto a cui "piazzare" tan_alpha
+for i=1:n
+    
+    betha_i = Tratti(1, i);
+    h_i = Tratti(2, i);
+    function_i = Functions(i);
+    n_i = betha_i / step + 1;
+
+    % y e y' vanno calcolati con l'angolo theta "relativo" (che riparte da
+    % 0 a ogni blocco), mentre tan(alpha) per poter essere graficato ha
+    % bisogno di essere indicizzato tramite l'angolo "progressivo"
+    for j=1:n_i
+        indx = c + j - 1 % <- Indice "globale" che serve per definire in sequenza tan_alpha
+        theta_i = Theta(indx) - starting_point;
+        dy = select_derivative_function(function_i, h_i, theta_i, betha_i);
+        tan_alpha_cen(indx) = dy/(R_base + R_rotella + Y(indx));
+        tan_alpha_ecc(indx) = (dy - e)/(sqrt((R_base+R_rotella)^2 - e^2) + Y(indx));
+    end
+
+    c = c + n_i;
+    starting_point = starting_point + betha_i;
+end
+
+[m,n] = size(tan_alpha_ecc)
+for i=1:n
+    alpha_cen(i) = atand(tan_alpha_cen(i));
+    alpha_ecc(i) = atand(tan_alpha_ecc(i));
+end
+
+% Plot
+figure;
+plot(Theta, alpha_cen);
+hold on;
+plot(Theta, alpha_ecc);
+legend("Centrata", "Eccentrica")
+hold off;
