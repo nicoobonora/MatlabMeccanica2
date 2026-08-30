@@ -1,0 +1,130 @@
+clear all
+close all
+clc
+
+% Nel codice viene definitio il profilo della camma, noto che sia l'alzata
+% e il corrispondente passo angolare, assumendo legge di moto di tipo
+% cicloidale
+
+% Ogni Hi, bethai definisce quanto una porzione bethai di rotazione della
+% camma causa una variazioni di altezza Hi della punteria:
+% - Primi 90 gradi -> Alzata di H1
+% - 45 gradi -> Abbassa di H2 (fino ad H = 5)
+% - 45 gradi -> Mantiene di H3 (Fino a 
+% - 180 gradi -> rialza fino a H4
+
+% Struttura tratti: matrice 2xn con ogni colonna avente beta gradi e
+% corrispettiva H, n = numero di tratti
+
+Tratti = [90, 45, 45, 180; ...
+            10, -5, 0, -5];
+
+[m, n] = size(Tratti);
+step = 0.1;
+
+starting_point = 0;
+h_tot = 0;
+Theta = [];
+Y = [];
+
+for i=1:n
+    betha_i = Tratti(1, i);
+    theta_i = 0:step:Tratti(1, i);
+    [k, n_i] = size(theta_i);
+    h_i = Tratti(2, i);
+
+    y_i = zeros(1, n_i);
+    translated_theta_i = zeros(1, n_i);
+    
+    
+    for j=1:n_i
+        y_i(j) = h_tot + h_i * ((theta_i(j)/betha_i) - (1/(2*pi))*sin(2*pi*theta_i(j)/betha_i));
+        translated_theta_i(j) = theta_i(j) + starting_point;
+    end
+
+    Theta = [Theta, translated_theta_i];
+    Y = [Y, y_i];
+
+    h_tot = h_tot + h_i;
+
+    starting_point = starting_point + betha_i;
+end
+
+% grafichiamo lo spostamento della punteria
+figure
+plot(Theta, Y)
+grid on
+
+c = 0;
+for i=1:n
+    amp = Tratti(1, i)
+    line([amp, amp],[min(Y),max(Y)],'Color','k');
+    c = c + amp;
+end
+
+xlabel('angular position')
+ylabel('displacement')
+
+% Disegnamo il profilo della camma
+% Camma centrata
+R_base = 10;
+R_rotella = 8; 
+
+[m,n] = size(Theta);
+
+for i = 1:n
+    P_primitivo(i,1) = (R_base+R_rotella+Y(i))*sind(Theta(i));
+    P_primitivo(i,2) = (R_base+R_rotella+Y(i))*cosd(Theta(i));
+    P(i,1) = (R_base+Y(i))*sind(Theta(i));
+    P(i,2) = (R_base+Y(i))*cosd(Theta(i));
+end
+
+figure
+plot(P_primitivo(:,1),P_primitivo(:,2),'-.b')
+hold all
+plot(P(:,1),P(:,2),'b')
+plot(0, 0, 'ro', 'MarkerSize', 5,'LineWidth',2);
+Max = max([max(P_primitivo(:,1)),max(P_primitivo(:,2))]);
+Min = min([min(P_primitivo(:,1)),min(P_primitivo(:,2))]);
+
+viscircles([0,0], R_base,'Color','black','LineWidth',.5);
+
+legend('profilo primitivo','profilo reale','centro di rotazione','circonferenza primitiva')
+
+xlim([1.2*Min 1.2*Max])
+ylim([1.2*Min 1.2*Max])
+
+
+% Camma eccentrica
+R_base = 10;
+R_rotella = 8; 
+e = 5;
+
+[m,n] = size(Theta)
+
+% Equazioni per tracciare il profilo della camma con eccentricità e (pagina
+% 444)
+for i = 1:n
+    P_primitivo(i,1) = e*sind(Theta(i)-90) + (sqrt((R_base+R_rotella)^2 - e^2) + Y(i))*sind(Theta(i));
+    P_primitivo(i,2) = e*cosd(Theta(i)-90) + (sqrt((R_base+R_rotella)^2 - e^2) + Y(i))*cosd(Theta(i));
+
+    theta_c2c = atan2d(P_primitivo(i,2),P_primitivo(i,1));
+    R = norm(P_primitivo(i,:))-R_rotella;
+    P(i,1) = R*cosd(theta_c2c);
+    P(i,2) = R*sind(theta_c2c);
+end
+
+figure
+plot(P_primitivo(:,1),P_primitivo(:,2),'-.b')
+hold all
+plot(P(:,1),P(:,2),'b')
+plot(0, 0, 'ro', 'MarkerSize', 5,'LineWidth',2);
+
+Max = max([max(P_primitivo(:,1)),max(P_primitivo(:,2))]);
+Min = min([min(P_primitivo(:,1)),min(P_primitivo(:,2))]);
+
+line([e,e],[1.2*Min,1.2*Max],'Color','k')
+viscircles([0,0], R_base,'Color','black','LineWidth',.5);
+xlim([1.2*Min 1.2*Max])
+ylim([1.2*Min 1.2*Max])
+legend('profilo primitivo','profilo reale','centro di rotazione','circonferenza primitiva')
