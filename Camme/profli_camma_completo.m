@@ -1,6 +1,12 @@
 clear all
 close all
 clc
+%{
+Completare l'esempio fornito, generalizzando il codice ad un numero generico di tratti da specificare
+all'inizio del calcolo. Definire le funzioni per le leggi di moto parabolico, polinomiale di grado quinto e
+cicloidale e rendere il tipo di moto selezionabile all'inizio del codice per ogni tratto. Infine, aggiungere il
+calcolo e il grafico dell'angolo di spinta per la camma con punteria centrata ed eccentrica.
+%}
 
 % Nel codice viene definitio il profilo della camma, noto che sia l'alzata
 % e il corrispondente passo angolare, assumendo legge di moto di tipo

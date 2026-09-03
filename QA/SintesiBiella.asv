@@ -1,0 +1,3 @@
+% 3 Punti di biella (definiscono una circonferenza)
+% 3 Posizioni desiderate: BC, B'C', B''C''
+bc = []
