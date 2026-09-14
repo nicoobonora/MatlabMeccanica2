@@ -142,11 +142,9 @@ while i<n
 end
 
 %% Plot azioni interne
-W_F
-S
 
-% 1. Sforzo normale
-subplot(4,1,1)
+% Sforzo normale
+subplot(5,1,1)
 
 plot(S, W_F(1,:))
 grid on
@@ -156,8 +154,8 @@ ylim([-2.5 0.5])
 ylabel('N')
 
 
-% 2. Forze di taglio
-subplot(4,1,2)
+% Taglio
+subplot(5,1,2)
 plot(S, W_F(2,:));
 grid on
 box on
@@ -165,18 +163,8 @@ xlim([0 L])
 ylim([-3.5 0.5])
 ylabel('T')
 
-
-% 3. Momenti flettenti
-subplot(4,1,3)
-plot(S, W_M(3,:))
-grid on
-box on
-xlim([0 L])
-ylabel('M_f')
-
-
-% 4. Momento torcente
-subplot(4,1,4)
+% Momento torcente
+subplot(5,1,3)
 plot(S, W_M(1,:))
 grid on
 box on
@@ -184,5 +172,49 @@ xlim([0 L])
 ylim([-1 2])
 ylabel('M_t')
 
+% Momento flettente
+subplot(5,1,4)
+plot(S, W_M(3,:))
+grid on
+box on
+xlim([0 L])
+ylabel('M_f')
+
 xlabel('x [m]')
 sgtitle('Andamento delle azioni interne')
+
+
+%% Calcolo tensioni equivalenti
+area = b*h;
+
+% Inerzie
+Jy = h*b^3/12;
+Jz = b*h^3/12;
+
+% Formule: slide 87
+
+% --- Tensione normale ---
+% sigma_x = Sforzo normale + flessione retta da Mz
+sigma_x = W_F(1, :) / area + W_M(3, :) / Jz * h/2;
+
+% --- Tensione tangenziale ---
+% Taglio dovuto al taglio:
+% b(y) è costante.
+% da file:///Users/nic/Downloads/Soluzione%20esame%2017_07_2024%20(2).pdf,
+% per una sezione rettangolare si ha Jp.
+% y è massima a y = 0.
+% (caso piu generico)
+tau_taglio = 6 / (b * h^3) * h^2 / 4 * W_F(2, :);
+
+% Taglio dovuto alla torsione
+% Come si calcola?? Andrebbe poi aggiunto a tau_taglio per avere tau
+
+% Massima tensione tangenziale
+sigma_eq = sqrt(sigma_x.^2 + 4*tau_taglio.^2)/1e6; % <- MPa
+
+subplot(5,1,5)
+plot(S, sigma_eq)
+grid on
+box on
+xlim([0 L])
+ylabel('sigma_eq')
