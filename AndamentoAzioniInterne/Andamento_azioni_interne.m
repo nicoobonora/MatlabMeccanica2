@@ -112,6 +112,7 @@ Pr(:,5) = [a+b+c,0,0]';
 for i = 1:n
     M(:,i) = cross(P(:,i),F(:,i));
 end
+M
 
 % Forze e momento totale prodotto dalle forze esterne
 F_tot = [0,0,0]';
@@ -194,7 +195,7 @@ Actions = sortrows(tmp_Actions',4)'; % <- Nota che poi la ri-trasponiamo, quindi
 %% Algoritmo per il calcolo delle azioni interne
 j=1;
 i=1;
-while i<=n
+while i<n
 
     % Se abbiamo piu forze applicate nello stesso punto allora spostiamo
     % l'indice i appena dopo tali forze (es se ho 2 forze in x = 0, allora
