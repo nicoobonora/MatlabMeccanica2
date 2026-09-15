@@ -19,8 +19,8 @@
 
 % --- Parametri trave rettangolare
 L = 1.5; % Lunghezza trave (metri)
-h = 0.2; % Altezza sezione trave
-b = 0.3; % Larghezza sezione trave
+h = 0.3; % Altezza sezione trave
+b = 0.2; % Larghezza sezione trave
 
 % --- Forze e rispettivi punti di applicazione
 T = [0, -3, 0]'; % Forza T
@@ -195,7 +195,7 @@ Jz = b*h^3/12;
 
 % --- Tensione normale ---
 % sigma_x = Sforzo normale + flessione retta da Mz
-sigma_x = W_F(1, :) / area + W_M(3, :) / Jz * h/2;
+sigma_x = abs(W_F(1, :)) / area + abs(W_M(3, :)) / Jz * h/2;
 
 % --- Tensione tangenziale ---
 % Taglio dovuto al taglio:
@@ -204,13 +204,21 @@ sigma_x = W_F(1, :) / area + W_M(3, :) / Jz * h/2;
 % per una sezione rettangolare si ha Jp.
 % y è massima a y = 0.
 % (caso piu generico)
-tau_taglio = 6 / (b * h^3) * h^2 / 4 * W_F(2, :);
+tau_taglio = 6 / (b * h^3) * h^2 / 4 * abs(W_F(2, :));
 
 % Taglio dovuto alla torsione
 % Come si calcola?? Andrebbe poi aggiunto a tau_taglio per avere tau
+% Da internet
+% (https://huginn.eng.umd.edu/ebooks/ENES220_2018/resources/_pdfs_/Chapter_4_rev_1_5th_ed_9_10_2016_25.pdf)
+% si ha che tau_max = Mt/Jt con Jt = alpha * a * b^2
+% e 
+% con a lato piu lungo, b lato piu corto, alpha valore dipendente dal rapporto tra i due
+alpha =  0.3334 - 0.1904*(b/h) - 0.2574*(b/h)^2 + 1.0255*(b/h)^3 - 1.0946*(b/h)^4 + 0.3916*(b/h)^5; % Formula dal sito
+tau_torsione = abs(W_M(1, :)) / (alpha * h * b^2);
 
+tau = tau_taglio + tau_torsione;
 % Massima tensione tangenziale
-sigma_eq = sqrt(sigma_x.^2 + 4*tau_taglio.^2)/1e6; % <- MPa
+sigma_eq = sqrt(sigma_x.^2 + 3*tau.^2)/1e6; % <- MPa
 
 subplot(5,1,5)
 plot(S, sigma_eq)

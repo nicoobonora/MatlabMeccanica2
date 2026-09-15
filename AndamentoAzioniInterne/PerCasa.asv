@@ -144,7 +144,7 @@ end
 %% Plot azioni interne
 
 % Sforzo normale
-subplot(4,1,1)
+subplot(5,1,1)
 
 plot(S, W_F(1,:))
 grid on
@@ -155,7 +155,7 @@ ylabel('N')
 
 
 % Taglio
-subplot(4,1,2)
+subplot(5,1,2)
 plot(S, W_F(2,:));
 grid on
 box on
@@ -164,7 +164,7 @@ ylim([-3.5 0.5])
 ylabel('T')
 
 % Momento torcente
-subplot(4,1,4)
+subplot(5,1,3)
 plot(S, W_M(1,:))
 grid on
 box on
@@ -173,7 +173,7 @@ ylim([-1 2])
 ylabel('M_t')
 
 % Momento flettente
-subplot(4,1,3)
+subplot(5,1,4)
 plot(S, W_M(3,:))
 grid on
 box on
@@ -194,8 +194,8 @@ Jz = b*h^3/12;
 % Formule: slide 87
 
 % --- Tensione normale ---
-% sigma_x = Sforzo normale + flessione retta su (potenzialmente) y e z
-sigma_x = W_F(1, :) / Area + W_F(2, :) / Jy * b/2 + W_F(3, :) / Jz * h/2;
+% sigma_x = Sforzo normale + flessione retta da Mz
+sigma_x = W_F(1, :) / area + W_M(3, :) / Jz * h/2;
 
 % --- Tensione tangenziale ---
 % Taglio dovuto al taglio:
@@ -203,9 +203,26 @@ sigma_x = W_F(1, :) / Area + W_F(2, :) / Jy * b/2 + W_F(3, :) / Jz * h/2;
 % da file:///Users/nic/Downloads/Soluzione%20esame%2017_07_2024%20(2).pdf,
 % per una sezione rettangolare si ha Jp.
 % y è massima a y = 0.
-% Dalla formula si ri
 % (caso piu generico)
-tau_taglio = 1.5 / A * W_F(2, :) + 1.5 / A * W_F(3, :);
+tau_taglio = 6 / (b * h^3) * h^2 / 4 * W_F(2, :);
 
 % Taglio dovuto alla torsione
-tau_torsione = 
+% Come si calcola?? Andrebbe poi aggiunto a tau_taglio per avere tau
+% Da internet
+% (https://huginn.eng.umd.edu/ebooks/ENES220_2018/resources/_pdfs_/Chapter_4_rev_1_5th_ed_9_10_2016_25.pdf)
+% si ha che tau_max = Mt/Jt * t con Jt = alpha * a * b^2
+% e 
+% con a lato piu lungo, b lato piu corto, alpha valore dipendente dal rapporto tra i due
+alpha = 0.196; % Valore per a/b = 1.5 (0.3 / 0.2)
+Jt = alpha * b * h^3;
+tau_torsione = W_M(1, :) / Jt * b;
+
+% Massima tensione tangenziale
+sigma_eq = sqrt(sigma_x.^2 + 4*tau_taglio.^2)/1e6; % <- MPa
+
+subplot(5,1,5)
+plot(S, sigma_eq)
+grid on
+box on
+xlim([0 L])
+ylabel('sigma_eq')
