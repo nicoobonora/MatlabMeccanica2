@@ -5,7 +5,7 @@ function [theta1, theta3] = position_analysis_byth2(theta2,l1,l2,l3,l4,upbranch)
 %orientation, the angle of the the frame must be added to all the angles
 
 %INPUT
-%theta2=  angolo membro 1 rispetto alla direzione X del SDR fisso
+%theta2 = angolo membro 1 rispetto alla direzione X del SDR fisso
 %l1= lunghezza membro 1 O-A
 %l2= lunghezza membro 2 A-B
 %l3= lunghezza membro 3 Q-B
