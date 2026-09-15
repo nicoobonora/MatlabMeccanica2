@@ -1,5 +1,22 @@
 % Genera 9 punti (9 coordinate x,y)
-function set = points_set_generator()
-    % Matrice random 9x2 con punti con x e y compresi tra 0 e 10
-    set = rand(9, 2) * 10;
+function set = points_set_generator(test)
+    if test
+        % Nove punti copribili dal QA:
+        % A=[0;1], D=[3;2], L1=2, L2=3,
+        % L3=2.5, Lp=2, tk=30 gradi
+        set = [
+            -0.418854624874052,  0.789034014530019
+            -0.119588272160732,  0.891117199352079
+             0.164767331022103,  1.242426055805116
+             0.459623817741225,  1.964162794359975
+             1.062620798851785,  3.129811601036077
+             1.904476702205277,  3.992553464993810
+             1.999673414361625,  4.400260122477851
+             1.607892469772555,  4.653222084052590
+             1.019744633495039,  4.720500183800650
+        ];
+    else
+        % Matrice random 9x2 con punti con x e y compresi tra 0 e 10
+        set = rand(9,2) * 10;
+    end
 end
