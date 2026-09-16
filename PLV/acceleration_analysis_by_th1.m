@@ -12,9 +12,9 @@ J = [-L2*sin(theta2), -L3*sin(theta3);
 M = [L1*th_ddot1*sin(theta1) + L1*th_dot1^2*cos(theta1) + L2*th_dot2^2*cos(theta2) + L3*th_dot3^2*cos(theta3);
        -L1*th_ddot1*cos(theta1) + L1*th_dot1^2*sin(theta1) + L2*th_dot2^2*sin(theta2) + L3*th_dot3^2*sin(theta3)];
 
-sol = J \ M;
+y = J \ M;
 
-th_ddot2 = sol(1);
-th_ddot3 = sol(2);
+th_ddot2 = y(1);
+th_ddot3 = y(2);
 
 end

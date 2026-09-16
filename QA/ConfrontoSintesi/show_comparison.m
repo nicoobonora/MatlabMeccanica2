@@ -3,15 +3,15 @@ function show_comparison(QA_3, QA_5, QA_7, QA_9, F3, F5, F7, F9, exitflag_3, exi
     nomi = ["3 punti"; "5 punti"; "7 punti"; "9 punti"];
 
     geometrie = [
-        QA_3(1:9)
-        QA_5(1:9)
-        QA_7(1:9)
-        QA_9(1:9)
+        QA_3(1:7)
+        QA_5(1:7)
+        QA_7(1:7)
+        QA_9(1:7)
     ];
 
     risultati = array2table(geometrie, ...
         "VariableNames", ...
-        ["xa","ya","xd","yd","L1","L2","L3","Lp","tk"]);
+        ["xa","ya","xd","yd","L1","L2","L3"]);
     
     risultati.Caso = nomi;
     risultati = movevars(risultati, "Caso", "Before", 1);

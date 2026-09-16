@@ -14,7 +14,7 @@ clear;
 % - fsolve risolve il sistema
 
 % 9 punti
-points_set = points_set_generator(true);
+points_set = points_set_generator(false);
 
 % Parametri noti da usare a seconda del numero di pose (6 parametri
 % totali)
@@ -28,8 +28,8 @@ options = optimoptions("fsolve", ...
     "FunctionTolerance", 1e-12, ...
     "StepTolerance", 1e-12, ...
     "OptimalityTolerance", 1e-10, ...
-    "MaxIterations", 20000, ...
-    "MaxFunctionEvaluations", 500000);
+    "MaxIterations", 50000, ...
+    "MaxFunctionEvaluations", 800000);
 
 
 % --- Caso 3 punti ---
