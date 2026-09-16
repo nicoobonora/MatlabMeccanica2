@@ -25,12 +25,12 @@ for i=1:n
     theta1_dot(i) = (2*pi*rpm)/60
 end
 
-s23_dot = L1*l*(theta1_dot.*cos(theta1))./Y(3)
+s23_dot = L1*l*(theta1_dot.*cos(theta1))./Y(3, :)
 
 % Ricaviamo theta3 dai rispettivi seni e coseni
 theta3 = atan2(Y(1, :), Y(2, :));
 disp(size(theta3))
-theta3_dot = L1 * theta1_dot .* (Y(3, :) .* sin(theta1) + l * cos(theta1) .* cos(theta3)) ./ (Y(3, :) .* Y(1, :));
+theta3_dot = L1 * theta1_dot .* (Y(3, :) .* sin(theta1) + l * cos(theta1) .* cos(theta3)) ./ (Y(3, :).^2 .* Y(1, :));
 
 % Rapporto di trasmissione
 tau = theta3_dot ./ theta1_dot
@@ -47,5 +47,5 @@ F = - (Mm * theta1_dot) ./ (sin(theta3) .* theta3_dot * AO3)
 
 % Plots
 figure
-plot(theta1, F)
+plot(theta1, abs(F))
 ylim([-20, 20])

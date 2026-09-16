@@ -145,5 +145,5 @@ figure
 %% Es2
 J = 2; % Kg * m^2
 % PLV potenze: Mm * dtheta1 + T * dtheta3 = 0 -> Mm = -T * dtheta3 / dtheta1
-Mm = - J * th_ddot3 .* th_dot3 ./ th_dot1
+Mm = J * th_ddot3 .* th_dot3 ./ th_dot1
 

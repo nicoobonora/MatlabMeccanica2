@@ -92,7 +92,7 @@ function F = solve_fun(X, points_set, A, D, L1, L2)
         X_full = X;
     end
     
-    F = QA_Npt(X_full, points_set, m)
+    F = QA_Npt(X_full, points_set, m);
 end
 
 

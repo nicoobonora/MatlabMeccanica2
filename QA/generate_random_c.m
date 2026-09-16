@@ -15,9 +15,9 @@ while isequal(theta_0, theta_1, theta_2)
     theta_2 = rand() * 2 * pi;
 end
 
-C_1 = B(1) + L * [cos(theta_0); sin(theta_0)];
-C_2 = B(2) + L * [cos(theta_1); sin(theta_1)];
-C_3 = B(3) + L * [cos(theta_2); sin(theta_2)];
+C_1 = B(:,1) + L * [cos(theta_0); sin(theta_0)];
+C_2 = B(:,2) + L * [cos(theta_1); sin(theta_1)];
+C_3 = B(:,3) + L * [cos(theta_2); sin(theta_2)];
 
 C = [C_1, C_2, C_3];
 

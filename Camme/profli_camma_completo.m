@@ -66,10 +66,10 @@ plot(Theta, Y)
 grid on
 
 c = 0;
-for i=1:n
-    amp = Tratti(1, i);
-    line([amp, amp],[min(Y),max(Y)],'Color','k');
-    c = c + amp;
+
+for i = 1:n
+    c = c + Tratti(1,i);
+    line([c c], [min(Y) max(Y)], 'Color', 'k');
 end
 
 xlabel('angular position')
