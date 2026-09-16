@@ -144,7 +144,7 @@ ylim([1.2*Min 1.2*Max])
 legend('profilo primitivo','profilo reale','centro di rotazione','circonferenza primitiva')
 
 
-% -------- FIne parte non modificata ---------
+% -------- Fine parte non modificata ---------
 
 
 %% Calcolo angolo di spinta punteria centrata
