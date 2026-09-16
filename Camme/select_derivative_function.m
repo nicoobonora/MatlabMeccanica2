@@ -5,16 +5,26 @@
 % poli -> polinomiale di quinto grado
 % ci -> cicloidale
 
-function derivative_function = select_derivative_function(choice, H, theta, betha)
-    switch choice
-        case "para"
-            derivative_function = (4*H*theta) / (betha^2);
-        case "poli"
-            derivative_function = (H/betha) * (30*(theta/betha)^2 - 60*(theta/betha)^3 + 30*(theta/betha)^4);
-        case "ci"
-            derivative_function = (H/betha) * (1 - cos(2*pi*theta/betha));
-        % Para di default
-        otherwise
-            derivative_function = (4*H*theta) / (betha^2);
-    end
+function dy = select_derivative_function(choice, H, theta_deg, beta_deg)
+
+u = theta_deg / beta_deg;
+beta_rad = deg2rad(beta_deg);
+
+switch choice
+    case "para"
+        if u <= 0.5
+            dy = 4*H*u / beta_rad;
+        else
+            dy = 4*H*(1-u) / beta_rad;
+        end
+
+    case "poli"
+        dy = H/beta_rad * ...
+            (30*u^2 - 60*u^3 + 30*u^4);
+
+    case "ci"
+        dy = H/beta_rad * ...
+            (1 - cos(2*pi*u));
+end
+
 end

@@ -5,7 +5,7 @@
 function chosen_function = select_function(choice, H, theta, betha)
     switch choice
         case "para"
-            chosen_function = 2*H*(theta/betha)^2;
+            chosen_function = H*(theta/betha)^2;
         case "poli"
             chosen_function = H*(10*(theta/betha)^3 - 15*(theta/betha)^4 + 6*(theta/betha)^5);
         case "ci"

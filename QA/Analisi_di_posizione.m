@@ -113,7 +113,7 @@ for i=1:n
 end
 
 for i=1:n
-    [th_dot2(i), th_dot3(i)] = velocity_analysis_by_th1(th_dot1(i), theta1_up(i), theta2_up(i), theta3_up(i), L1,L2,L3);
+    [th_dot2(i), th_dot3(i)] = velocity_analysis_byth1(th_dot1(i), theta1_up(i), theta2_up(i), theta3_up(i), L1,L2,L3);
 end
 
 hold on
@@ -135,4 +135,5 @@ hold off
 
 figure;
 plot(theta1_up, th_dot2);
+hold on
 plot(theta1_up, th_dot3);

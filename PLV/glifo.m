@@ -33,19 +33,19 @@ disp(size(theta3))
 theta3_dot = L1 * theta1_dot .* (Y(3, :) .* sin(theta1) + l * cos(theta1) .* cos(theta3)) ./ (Y(3, :).^2 .* Y(1, :));
 
 % Rapporto di trasmissione
-tau = theta3_dot ./ theta1_dot
+tau = theta3_dot ./ theta1_dot;
 
 % La componente utile della forza F è quella perpendicolare alla
 % congiungente A-03. Di conseguenza è F * sin(theta3). Per PLV,
 %  F * sin(theta3) * va + Mm * th1_dot = 0, dove va = theta3_dot * 03-A
 
 % velocità del punto A
-AO3 = 2 %m <- distanza in metri tra o3 e A
-va = theta3_dot * AO3
-Mm = 1 %N*m
-F = - (Mm * theta1_dot) ./ (sin(theta3) .* theta3_dot * AO3)
+AO3 = 2; %m <- distanza in metri tra o3 e A
+va = theta3_dot * AO3;
+Mm = 1; %N*m
+F = - (Mm * theta1_dot) ./ (sin(theta3) .* theta3_dot * AO3);
 
 % Plots
 figure
 plot(theta1, abs(F))
-ylim([-20, 20])
+ylim([0, 20])

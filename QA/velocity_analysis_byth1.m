@@ -10,7 +10,7 @@ elseif(theta2 == theta1)
 end
 
 % Sfruttiamo le formule gia risolte (pagina 252 Meccanica 1)
-th_dot2 = th_dot1 * (L1*sin(theta1 - theta3))/(L2*sin(theta3 - theta2));
-th_dot3 = th_dot1 * (L1*sin(theta1 - theta2))/(L3*sin(theta3 - theta2));
+th_dot2 = th_dot1 * (L1*sind(theta1 - theta3))/(L2*sind(theta3 - theta2));
+th_dot3 = th_dot1 * (L1*sind(theta1 - theta2))/(L3*sind(theta3 - theta2));
 
 end
