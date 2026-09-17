@@ -1,5 +1,6 @@
 % Restituisce y' a seconda della legge di moto scelta (y' = derivata
-% rispetto a theta)
+% rispetto a theta espresso in radianti). Gli argomenti theta_deg e beta_deg
+% sono in gradi; dy = (dy/du)/beta_rad, con u = theta_deg/beta_deg.
 
 % para -> moto parabolico
 % poli -> polinomiale di quinto grado
@@ -25,6 +26,14 @@ switch choice
     case "ci"
         dy = H/beta_rad * ...
             (1 - cos(2*pi*u));
+
+    % Parabolica di default, come in select_function.
+    otherwise
+        if u <= 0.5
+            dy = 4*H*u / beta_rad;
+        else
+            dy = 4*H*(1-u) / beta_rad;
+        end
 end
 
 end

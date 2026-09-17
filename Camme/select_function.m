@@ -1,17 +1,27 @@
 % para -> moto parabolico
 % poli -> polinomiale di quinto grado
 % ci -> cicloidale
+% theta e betha in gradi, come nelle chiamate del profilo camma.
 
 function chosen_function = select_function(choice, H, theta, betha)
+    u = theta/betha;
     switch choice
         case "para"
-            chosen_function = H*(theta/betha)^2;
+            if u <= 0.5
+                chosen_function = 2*H*u^2;
+            else
+                chosen_function = H*(1 - 2*(1-u)^2);
+            end
         case "poli"
-            chosen_function = H*(10*(theta/betha)^3 - 15*(theta/betha)^4 + 6*(theta/betha)^5);
+            chosen_function = H*(10*u^3 - 15*u^4 + 6*u^5);
         case "ci"
-            chosen_function = H*((theta/betha) - (1/(2*pi))*sin(2*pi*theta/betha));
+            chosen_function = H*(u - sin(2*pi*u)/(2*pi));
         % Para di default
         otherwise
-            chosen_function = 2*H*(theta/betha)^2;
+            if u <= 0.5
+                chosen_function = 2*H*u^2;
+            else
+                chosen_function = H*(1 - 2*(1-u)^2);
+            end
     end
 end
