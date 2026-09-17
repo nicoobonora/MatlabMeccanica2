@@ -29,8 +29,8 @@ theta1 = deg2rad(0:1:360); % -> vettore di 361 elementi [0, ..., 360]
 % ---------------- analisi di posizione
 
 for i=1:n
-    [theta2_up(i), theta3_up(i)] = position_analysis_byth1(theta1(i),L1,L2,L3,L4,true);
-    [theta2_down(i), theta3_down(i)] = position_analysis_byth1(theta1(i),L1,L2,L3,L4,false);
+    [theta2_up(i), theta3_up(i)] = position_analysisbyth1(theta1(i),L1,L2,L3,L4,true);
+    [theta2_down(i), theta3_down(i)] = position_analysisbyth1(theta1(i),L1,L2,L3,L4,false);
 end
 
 
@@ -46,7 +46,7 @@ for i=1:n
 end
 
 for i=1:n
-    [th_dot2(i), th_dot3(i)] = velocity_analysis_by_th1(th_dot1(i), theta1(i), theta2_up(i), theta3_up(i), L1,L2,L3);
+    [th_dot2(i), th_dot3(i)] = velocity_analysisbyth1(th_dot1(i), theta1(i), theta2_up(i), theta3_up(i), L1,L2,L3);
 end
 
 
@@ -138,7 +138,6 @@ ylabel('t_{31}')
 xL = xlim;
 line(xL, [0 0],'Color','k');  %y-axis
 
-figure
 % FourBar_plot(L1,L2,L3,L4,L2,0,[0 0])
 
 

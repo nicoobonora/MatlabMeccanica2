@@ -45,7 +45,9 @@ va = theta3_dot * AO3;
 Mm = 1; %N*m
 F = - (Mm * theta1_dot) ./ (sin(theta3) .* theta3_dot * AO3);
 
-% Plots (Presenta due singolarità)
+% Plots
 figure
 plot(theta1, abs(F))
 ylim([0, 20])
+
+% Presenta due singolarit
