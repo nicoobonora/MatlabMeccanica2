@@ -33,6 +33,24 @@ options = optimset('display','off');
 for i=1:m
     %ottimizzatore
     f = @(theta1)closure_minimizing_initialpoint_distance(theta1,L1,L2,L3,L4,Origin,frame_angle,Lp,tk,Points(i,:),true);
+    if ~isfinite(f(theta1))
+    trovato = false;
+
+    for angolo = 0:359
+        valore = f(angolo);
+
+        if isreal(valore) && isfinite(valore)
+            theta1 = angolo;
+            trovato = true;
+            break
+        end
+    end
+
+    if ~trovato
+        Fval = 1e12;
+        return
+    end
+    end
     [theta1_opt_up,eval_up] = fmincon(f,theta1,[],[],[],[],lb,ub,[],options);
     f = @(theta1)closure_minimizing_initialpoint_distance(theta1,L1,L2,L3,L4,Origin,frame_angle,Lp,tk,Points(i,:),false);
     [theta1_opt1_down,eval_down] = fmincon(f,theta1,[],[],[],[],lb,ub,[],options);
@@ -57,20 +75,20 @@ end
 OA = [xa,ya];
 OD = [xd,yd];
 
-AB = zeros(9,2);
-BC = zeros(9,2);
-DC = zeros(9,2);
-BE = zeros(9,2);
-F = zeros(36);
+AB = zeros(m,2);
+BC = zeros(m,2);
+DC = zeros(m,2);
+BE = zeros(m,2);
+F = zeros(4*m,1);
 
-for i=1:9
-    AB(i,1:2) = [L1*cosd(t1(i)),L1*sind(t1(i))];
-    BC(i,1:2) = [L2*cosd(t2(i)),L2*sind(t2(i))];
-    DC(i,1:2) = [L3*cosd(t3(i)),L3*sind(t3(i))];
-    BE(i,1:2) = [Lp*cosd(t2(i)+tk),Lp*sind(t2(i)+tk)];
+for i=1:m
+    AB(i,:) = [L1*cosd(t1(i)), L1*sind(t1(i))];
+    BC(i,:) = [L2*cosd(t2(i)), L2*sind(t2(i))];
+    DC(i,:) = [L3*cosd(t3(i)), L3*sind(t3(i))];
+    BE(i,:) = [Lp*cosd(t2(i)+tk), Lp*sind(t2(i)+tk)];
 end
 
-for i=1:9
+for i=1:m
     F(1+4*(i-1)) = OA(1) + AB(i,1) + BC(i,1) - OD(1) - DC(i,1);
     F(2+4*(i-1)) = OA(2) + AB(i,2) + BC(i,2) - OD(2) - DC(i,2);
     F(3+4*(i-1)) = OA(1) + AB(i,1) + BE(i,1) - OE(i,1);
@@ -78,9 +96,9 @@ for i=1:9
 end
 
 FF = 0;
-for j=1:36
+for j=1:4*m
     FF = FF + sqrt(F(j)^2);
 end
 
-Fval = FF
+Fval = FF;
 end

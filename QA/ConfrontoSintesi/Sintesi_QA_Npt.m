@@ -4,7 +4,7 @@
 % 
 % in questo caso però, minimizziamo il problema complessivo
 
-clear all
+clear
 close all
 clc
 
@@ -31,6 +31,8 @@ X(7) = 110 + DL*rand;  %L3 124.166488067079
 X(8) = 20 + DL*rand;  %Lp 8.69410524696036	
 X(9) = 65 + DL*rand;  %tk 79.8904570530259
 
+X0 = X;
+
 % Lower bound, upper bound
 clear lb ub
 
@@ -54,15 +56,50 @@ ub(8) = 500;
 ub(9) = 180;
 
 
-%% risolvo il sistema di equazioni
 options = optimset('TolFun', 1e-5);
+%% risolvo il sistema di equazioni
+
+% 3 punti
+X = X0;
+P3 = Points(1:3, :);
+tic
+f = @(X)QA_by_9PT_for_fmincon_noangles(X,P3);
+lb3 = lb;
+ub3 = ub;
+lb3(1:6) = X(1:6);
+ub3(1:6) = X(1:6);
+[x3,eval3] = fmincon(f,X,[],[],[],[],lb3,ub3,[],options);
+time3 = toc
+
+% 5 punti
+X = X0;
+P5 = Points(1:5, :);
+tic
+f = @(X)QA_by_9PT_for_fmincon_noangles(X,P5);
+lb4 = lb;
+ub4 = ub;
+lb5(1:4) = X(1:4);
+ub5(1:4) = X(1:4);
+[x5,eval5] = fmincon(f,X,[],[],[],[],lb5,ub5,[],options);
+time5 = toc
+
+% 7 punti
+X = X0;
+P7 = Points(1:7, :);
+tic
+f = @(X)QA_by_9PT_for_fmincon_noangles(X,P7);
+lb7 = lb;
+ub7 = ub;
+lb7(1:2) = X(1:2);
+ub7(1:2) = X(1:2);
+[x7,eval7] = fmincon(f,X,[],[],[],[],lb7,ub7,[],options);
+time7 = toc
+
+% 9 punti
+tic
 f = @(X)QA_by_9PT_for_fmincon_noangles(X,Points);
-[x,eval] = fmincon(f,X,[],[],[],[],lb,ub,[],options);
-
-eval
-x(1:9)'
-% x = X;
-
+[x9,eval9] = fmincon(f,X,[],[],[],[],lb,ub,[],options);
+time9 = toc
 
 %% visualizzo il meccanismo
 
@@ -79,7 +116,7 @@ R = [v(1),-v(2),x(1);
     0,0,1];
 R = inv(R);
 
-d = R* [x(3),x(4),1]'
+d = R* [x(3),x(4),1]';
 
 % trasformo i punti nel nuovo riferimento
 Points(:,3)=1;
